@@ -1,16 +1,35 @@
 <template>
   <div id="app" class="container-fluid">
-    <TitlePage></TitlePage>
+    <Game v-if="activeGame"></Game>
+    <TitlePage v-else></TitlePage>
   </div>
 </template>
 
 <script>
 import TitlePage from './components/TitlePage'
-
+import Game from './components/Game'
 export default {
   name: 'app',
   components: {
-    TitlePage
+    TitlePage,
+    Game
+  },
+  mounted () {
+    console.log('App ->mounted')
+    this.$evt.$on('playGame', () => {
+      this.activeGame = true
+    })
+  },
+
+  beforeDestroy () {
+    console.log('App -> before destroy')
+    // unregister custom event listeners
+    this.$evt.$off('playGame', this.clear)
+  },
+  data () {
+    return {
+      activeGame: false
+    }
   }
 }
 </script>
@@ -23,5 +42,7 @@ export default {
   background-color: #000;
   /*margin: 0;*/
   /*padding: 0;*/
+  max-height: 700px;
+  /*max-width: 700px;*/
 }
 </style>

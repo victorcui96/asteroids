@@ -6,7 +6,11 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-sm-12 col-md-7 col-md-5">
+        <div class="col-sm-12 col-md-5">
+            <h2>TO MOVE</h2>
+            <h2>TO SHOOT</h2>
+        </div>
+        <div class="col-sm-12 col-md-7">
           <PlayButton> </PlayButton>
         </div>
       </div>

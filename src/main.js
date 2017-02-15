@@ -3,6 +3,11 @@
 import Vue from 'vue'
 import App from './App'
 
+// Global event Bus. Used so that any component can listen to an event emitted by anoy another component, regardless of their hiearchy relationship
+
+const evt = new Vue()
+Vue.prototype.$evt = evt
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

@@ -17,60 +17,83 @@ export default {
     // Third parameter = rendering context, either WEBGL or Canvas
     // var winW = document.body.offsetWidth
     // var winH = document.body.offsetHeight
-    var game = new window.Phaser.Game(800, 600, window.Phaser.AUTO, 'game-container', {
+    var myGame = new window.Phaser.Game(800, 600, window.Phaser.AUTO, 'game-container', {
       preload: preload, create: create, update: update, render: render
     })
+
+    // var coachKProperties = {
+    //   startingHeads: 4,
+    //   // max number of heads that appear no matter what level
+    //   maxHeads: 10,
+    //   // after each rounc, increase # of heads by 2
+    //   incrementHeads: 2,
+    //   physicsProperties: {
+    //     minVelocity: 50,
+    //     maxVelocity: 200,
+    //     minAngularVelocity: 0,
+    //     maxAngularVelocity: 200,
+    //     score: 50
+    //   }
+    // }
 
     // preload (), create(), and update() are essential Phaser functions
 
     function preload () {
       // game.load.image('sky', '../../static/sky.png')
-      game.load.image('bullet', '../../static/bullet.png')
-      game.load.image('spaceship', '../../static/spaceship.png')
-      // game.load.start()
+      myGame.load.image('bullet', '../../static/bullet.png')
+      myGame.load.image('spaceship', '../../static/spaceship.png')
+      myGame.load.start()
     }
     var spaceship
     var weapon
     var fireButton
     var cursors
-    function create () {
-      // enable the Arcade Physics system
-      game.physics.startSystem(window.Phaser.Physics.ARCADE)
-      // Add a sprite to the game
-      // game world has no fixed size and extends infinitely in all directions, with (0, 0) being the center
-      // For convenience Phaser places 0, 0 at the top left of your game for you, but by using the built-in Camera you can move around as needed
+    function initSpaceship (game) {
 
+    }
+
+    function initWeapon (game) {
       //  Creates 30 bullets, using the 'bullet' graphic
       weapon = game.add.weapon(30, 'bullet')
       // The bullet will be automatically killed when it leaves the world bounds
       weapon.bulletKillType = window.Phaser.Weapon.KILL_WORLD_BOUNDS
-       // The speed at which the bullet is fired
-      weapon.bulletSpeed = 200
-       // Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
+      // The speed at which the bullet is fired
+      weapon.bulletSpeed = 300
+      // Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
       weapon.fireRate = 100
+      // Tell the Weapon to track the 'ship' Sprite with no offsets from the position
+      // 'true' argument tells the weapon to track sprite rotation
+      weapon.trackSprite(spaceship, 0, 0, true)
+    }
+     /* Handles user keyboard presses and the weapon fire event through pressing the spacebar */
+    function handleWeaponFire (game) {
+      cursors = game.input.keyboard.createCursorKeys()
+      fireButton = game.input.keyboard.addKey(window.Phaser.KeyCode.SPACEBAR)
+    }
+    function create () {
+      // enable the Arcade Physics system
+      myGame.physics.startSystem(window.Phaser.Physics.ARCADE)
 
-      // var gameHeight = game.world.height
+      // Add a sprite to the game
       // The spaceship and its settings
-      spaceship = this.add.sprite(400, 300, 'spaceship')
+      spaceship = myGame.add.sprite(400, 300, 'spaceship')
       spaceship.anchor.set(0.5)
       // enable physics on the spaceship
-      game.physics.arcade.enable(spaceship)
+      myGame.physics.arcade.enable(spaceship)
       // Set a max velocity for the spaceship
       spaceship.body.drag.set(70)
       spaceship.body.maxVelocity.set(200)
 
-      //  Tell the Weapon to track the 'ship' Sprite with no offsets from the position
-      //  'true' argument tells the weapon to track sprite rotation
-      weapon.trackSprite(spaceship, 0, 0, true)
+      initSpaceship(myGame)
+      initWeapon(myGame)
+      handleWeaponFire(myGame)
 
-      cursors = this.input.keyboard.createCursorKeys()
+      // game world has no fixed size and extends infinitely in all directions, with (0, 0) being the center
 
-      fireButton = this.input.keyboard.addKey(window.Phaser.KeyCode.SPACEBAR)
+      // var gameHeight = game.world.height
 
       // spaceship physics properties
       // body property is an instance of 'ArcadePhysics.body'
-      // spaceship.body.bounce.y = 0.2
-      // spaceship.body.gravity.y = 10
       // spaceship.body.collideWorldBounds = true
     }
     /* This function is called by the core game loop every frame */
@@ -79,9 +102,7 @@ export default {
       //  Reset the spaceship's velocity (movement)
       // spaceship.body.velocity.x = 0
       if (cursors.up.isDown) {
-        console.log('up')
-        console.log(spaceship.body.acceleration)
-        game.physics.arcade.accelerationFromRotation(spaceship.rotation, 300, spaceship.body.acceleration)
+        myGame.physics.arcade.accelerationFromRotation(spaceship.rotation, 300, spaceship.body.acceleration)
       } else {
         spaceship.body.acceleration.set(0)
       }
@@ -97,7 +118,7 @@ export default {
       if (fireButton.isDown) {
         weapon.fire()
       }
-      game.world.wrap(spaceship, 16)
+      myGame.world.wrap(spaceship, 16)
     }
 
     function render () {

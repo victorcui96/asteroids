@@ -42,7 +42,8 @@ export default {
   background-color: #000;
   /*margin: 0;*/
   /*padding: 0;*/
-  max-height: 700px;
+  max-height: 600px;
+  max-width: 800px;
   /*max-width: 700px;*/
 }
 </style>

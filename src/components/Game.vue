@@ -1,15 +1,24 @@
 <template>
 	<div id="game-container">
-		<!-- <img src="../assets/sky.png" alt=""> -->
+		<LivesCounter></LivesCounter>
+		<Score></Score>
 	</div>
 </template>
 
 <script>
+import LivesCounter from './LivesCounter'
+import Score from './Score'
+
 export default {
 
   name: 'Game',
+  components: {
+    LivesCounter,
+    Score
+  },
 
   mounted () {
+    var $this = this
     // create phaser game here
     console.log('Game ->mounted')
     // Create an instace of a Phaser.Game object
@@ -17,9 +26,26 @@ export default {
     // Third parameter = rendering context, either WEBGL or Canvas
     // var winW = document.body.offsetWidth
     // var winH = document.body.offsetHeight
+    var spaceship
+    var weapon
+    var fireButton
+    var cursors
+    var enemiesGroup
     var myGame = new window.Phaser.Game(800, 600, window.Phaser.AUTO, 'game-container', {
       preload: preload, create: create, update: update, render: render
     })
+
+    var gameState = {
+      level: 1,
+      score: 0
+    }
+
+    var shipProperties = {
+      startingLives: 3,
+      // ship will always start im the center of the game world
+      startX: myGame.width * 0.5,
+      startY: myGame.height * 0.5
+    }
 
     var enemyProperties = {
       startingHeads: 4,
@@ -35,6 +61,9 @@ export default {
         score: 50
       }
     }
+    var numEnemies = enemyProperties.startingHeads
+
+    // var shipLives = shipProperties.startingLives
 
     // preload (), create(), and update() are essential Phaser functions
 
@@ -45,16 +74,11 @@ export default {
       myGame.load.image('asteroid', '../../static/asteroid2.png')
       myGame.load.start()
     }
-    var spaceship
-    var weapon
-    var fireButton
-    var cursors
-    var enemiesGroup
-    var numEnemies = enemyProperties.startingHeads
+
     function initSpaceship (game) {
       // Add a sprite to the game
       // The spaceship and its settings
-      spaceship = game.add.sprite(400, 300, 'spaceship')
+      spaceship = game.add.sprite(shipProperties.startX, shipProperties.startY, 'spaceship')
       spaceship.anchor.set(0.5)
       // enable physics on the spaceship
       game.physics.arcade.enable(spaceship)
@@ -76,7 +100,11 @@ export default {
       // 'true' argument tells the weapon to track sprite rotation
       weapon.trackSprite(spaceship, 0, 0, true)
     }
-     /* Handles user keyboard presses and the weapon fire event through pressing the spacebar */
+
+    // function initBulletGroup (game) {
+    //   bulletGroup = game.add.group()
+    //   Handles user keyboard presses and the weapon fire event through pressing the spacebar
+    // }
     function handleWeaponFire (game) {
       cursors = game.input.keyboard.createCursorKeys()
       fireButton = game.input.keyboard.addKey(window.Phaser.KeyCode.SPACEBAR)
@@ -99,7 +127,6 @@ export default {
       enemy.anchor.set(0.5, 0.5)
       // sets enemy body to rotate at a random angular velocity b/t min & max angular velocity
       enemy.body.angularVelocity = game.rnd.integerInRange(enemyProperties.physicsProperties.minAngularVelocity, enemyProperties.physicsProperties.maxAngularVelocity)
-      console.log(enemy.body.angularVelocity)
       // returns a value between -180 to 180 (in degrees), then converted into Radians
       var randomAngle = game.math.degToRad(game.rnd.angle())
       var randomVelocity = game.rnd.integerInRange(enemyProperties.physicsProperties.minVelocity, enemyProperties.physicsProperties.maxVelocity)
@@ -124,20 +151,35 @@ export default {
         initEnemy(game, x, y)
       }
     }
+
+    function asteroidCollision (target, asteroid) {
+      target.kill()
+      asteroid.kill()
+      if (target.key === 'spaceship') {
+        $this.destroyShip()
+        shipProperties.startingLives--
+        var numShipLives = shipProperties.startingLives
+        if (numShipLives > 0) {
+          myGame.time.events.add(window.Phaser.Timer.SECOND * 3, resetShip, this)
+        }
+      }
+      // update player's score
+      $this.updateScore()
+      gameState.score += 50
+    }
+
+    function resetShip () {
+      // Reset ship so it's visible & placed at original starting coordinates
+      spaceship.reset(shipProperties.startX, shipProperties.startY)
+      // Make spaceship face upwards. By default, at 0 degrees, all sprites face towards the right
+      spaceship.angle = -90
+    }
+
     // Make sure our game objects wrap around the game world
     function checkBoundaries (game, sprite, padding) {
-      // if (sprite.x < 0) {
-      //   sprite.x = game.width
-      // } else if (sprite.x > game.width) {
-      //   sprite.x = 0
-      // }
-      // if (sprite.y < 0) {
-      //   sprite.y = game.height
-      // } else if (sprite.y > game.height) {
-      //   sprite.y = 0
-      // }
       game.world.wrap(sprite, padding)
     }
+
     function create () {
       // enable the Arcade Physics system
       myGame.physics.startSystem(window.Phaser.Physics.ARCADE)
@@ -185,13 +227,29 @@ export default {
       checkPlayerInput(myGame, cursors)
       // enemiesGroup.forEachExists(console.log(this.body.angularVelocity))
       checkBoundaries(myGame, spaceship, 16)
+      // wrap afound the asteroids
       enemiesGroup.forEach((item) => {
         myGame.world.wrap(item, 16)
       }, this)
+      // Collision detection between the bullet and an asteroid ->if there is a collision, destroy both the bullet and the asteroid
+      myGame.physics.arcade.overlap(weapon.bullets, enemiesGroup, asteroidCollision, null, this)
+      // Collision detection between the spaceship and an asteroid
+      myGame.physics.arcade.overlap(spaceship, enemiesGroup, asteroidCollision, null, this)
     }
 
     function render () {
-      weapon.debug()
+      // weapon.debug()
+    }
+  },
+
+  methods: {
+    destroyShip () {
+      // emit an event to be captured by <LivesCounter> component. This should decrease the number of ship lives by 1
+      this.$evt.$emit('decrementShipLife')
+    },
+    updateScore () {
+      // emit an event to be captured by <Score> component. This should increase the player's score by 50
+      this.$evt.$emit('updateScore')
     }
   },
 
@@ -200,6 +258,7 @@ export default {
 
     }
   }
+
 }
 </script>
 
@@ -208,5 +267,6 @@ export default {
 	background: gray;
 	max-width: 800px;
 	max-height: 600px;
+	position: relative;
 }
 </style>	

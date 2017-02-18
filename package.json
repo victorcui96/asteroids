@@ -1,7 +1,7 @@
 {
-  "name": "mejo583-project1",
+  "name": "asteroids-vue",
   "version": "1.0.0",
-  "description": "An intuitive and fun web application crated using Vue.js",
+  "description": "An intuitive and fun web take on Atari asteroids created using Vue.js and Phaser.io",
   "author": "Victor Cui",
   "private": true,
   "scripts": {

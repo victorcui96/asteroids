@@ -24,3 +24,13 @@ npm run build --report
 ```
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+Credits
+
+I got the inspiration for this project from Haseeb Qureshi's implementation of Asteroids. You can play his game here: http://haseeb-qureshi.github.io/Asteroids/
+
+For some of the code inside Game.Vue, I followed an Asteroids tutorial using Phaser.io. You can find the tutorial I used here: http://www.zekechan.net/asteroids-html5-game-tutorial-1/
+
+This github repository is located at: https://github.com/victorcui96/asteroids
+
+

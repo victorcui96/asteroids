@@ -2,7 +2,7 @@
 
 > An intuitive and fun take on the classic Arcade game Atari Asteroids
 
-Uses the front-end framework <a href="https://vuejs.org/"> Vue.js </a> and the game framework Phaser.io
+Uses the front-end framework <a href="https://vuejs.org/"> Vue.js </a> and the game framework <a href="http://phaser.io/"> Phaser.io </a>
 
 
 ## Build Setup (i.e installation instructions)

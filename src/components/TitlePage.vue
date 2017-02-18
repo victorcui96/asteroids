@@ -37,11 +37,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang='scss'>
-/*-webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale; */
-
-
+<style lang="scss">
 .title-page {
   background-image: url('../../static/starfield.png');
   background-repeat: no-repeat;

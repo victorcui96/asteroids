@@ -23,7 +23,7 @@ export default {
       console.log(this.$el.className)
       if (this.$el.className === 'audio-btn') {
         console.log('button clicked')
-        // this.$evt.$emit('playGameSound')
+        this.$evt.$emit('playGameSound')
         // var gameAudio = document.getElementById('game-audio')
         // gameAudio.play()
       }

@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="container-fluid">
-    <Game id="game" v-if="activeGame"></Game>
+    <Game v-if="activeGame"></Game>
     <TitlePage id="title-page" v-else></TitlePage>
     <div class="is-mobile">
       <div class="row">
@@ -45,24 +45,18 @@ export default {
       activeGame: false
     }
   }
-  // computed () {
-  //   isMobile
-  // }
 }
 </script>
 
 <style lang="scss">
 #app {
-  /*font-family: 'Avenir', Helvetica, Arial, sans-serif;*/
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #000;
-  /*margin: 0;*/
-  /*padding: 0;*/
   max-height: 600px;
   max-width: 800px;
   margin-top: 20px;
-  /*max-width: 700px;*/
 }
 
 .is-mobile {
@@ -78,7 +72,7 @@ export default {
   }
 }
 
-@media screen and (max-device-width: 500px) and (max-device-height: 800px) {
+@media screen and (max-device-width: 500px) and (max-device-height: 700px) {
   #title-page {
     display: none;
   }
@@ -87,8 +81,6 @@ export default {
     
   }
 }
-
-
 
 
 </style>

@@ -23,13 +23,16 @@ export default {
     Level
   },
 
+  // TODO: Add option to replay game if either player loses all his lives, or he gets a high enough score (he wins) -> try using Phaser's built in state manager
+  // TODO: Add sounds when a bullet is fired, and when a bullet or spaceship collides with an asteoroid
+  // TODO: Maybe add more levels
+  // TODO: Try Vue animations when User clicks to play game, and when the game ends
+
   mounted () {
+    // used so I can have access to current Vue component in my later functions
     var $this = this
     // create phaser game here
     console.log('Game ->mounted')
-    // Create an instance of a Phaser.Game object
-    // First two parameters are the width & height of the <canvas> element that Phaser creates
-    // Third parameter = rendering context, either WEBGL or Canvas
     var spaceship
     var weapon
     var fireButton
@@ -42,27 +45,13 @@ export default {
       game: 'game',
       main: 'main'
     }
-
-    // var mainState = function (game) {
-    //   console.log('dead')
-    //   create () {
-    //     console.log('restart the game')
-    //   },
-    //   startGame () {
-    //     game.state.start(states.game)
-    //   }
-    // }
-
+    // Create an instance of a Phaser.Game object
+    // First two parameters are the width & height of the <canvas> element that Phaser creates
+    // Third parameter = rendering context, either WEBGL or Canvas
+    // Game world has no fixed size and extends infinitely in all directions, with (0, 0) being the center
     var myGame = new window.Phaser.Game(800, 600, window.Phaser.AUTO, 'game-container', {
       preload: preload, create: create, update: update, render: render
     })
-    // Use Phaser's built in State Manager
-    // states.main is used for when the player loses all his lives
-
-    // myGame.state.add(states.main, mainState)
-    // myGame.state.add(states.game, gameState)
-    // Start the game in the main state
-    // myGame.state.start(states.main)
 
     var gameProperties = {
       delayToStartLevel: 3
@@ -75,17 +64,17 @@ export default {
 
     var shipProperties = {
       startingLives: 3,
-      // ship will always start im the center of the game world
+      // ship will always start in the center of the game world
       startX: myGame.width * 0.5,
       startY: myGame.height * 0.5
     }
 
     var asteroidProperties = {
-      startingAsteroids: 8,
+      startingAsteroids: 6,
       // max number of asteroids that appear no matter what level
-      maxHeads: 10,
-      // after each rounc, increase # of heads by 2
-      incrementHeads: 2,
+      maxAsteroids: 20,
+      // after each round, increase # of asteroids by 2
+      incrementAsteroids: 2,
       physicsProperties: {
         minVelocity: 0,
         maxVelocity: 200,
@@ -97,6 +86,7 @@ export default {
     var numAsteroids = asteroidProperties.startingAsteroids
 
     // Check if user wants sound during the game
+    // TODO: For some reason the $on isn't triggering
     this.$evt.$on('playGameSound', () => {
       console.log('Play sound')
       gameAudio.play()
@@ -105,7 +95,7 @@ export default {
     // var shipLives = shipProperties.startingLives
 
     // preload (), create(), and update() are essential Phaser functions
-
+    // Phaser automatically looks for this function when it starts & loads anything defined in it
     function preload () {
       myGame.load.image('background', '../../static/background.png')
       myGame.load.image('bullet', '../../static/bullet.png')
@@ -141,10 +131,6 @@ export default {
       weapon.trackSprite(spaceship, 0, 0, true)
     }
 
-    // function initBulletGroup (game) {
-    //   bulletGroup = game.add.group()
-    //   Handles user keyboard presses and the weapon fire event through pressing the spacebar
-    // }
     function handleWeaponFire (game) {
       cursors = game.input.keyboard.createCursorKeys()
       fireButton = game.input.keyboard.addKey(window.Phaser.KeyCode.SPACEBAR)
@@ -157,7 +143,7 @@ export default {
       // Enables the physics body
       asteroidsGroup.enableBody = true
       asteroidsGroup.physicsBodyType = window.Phaser.Physics.ARCADE
-      // game.physics.arcade.enable(asteroidsGroup)
+      game.physics.arcade.enable(asteroidsGroup)
     }
 
     function initAsteroid (game, x, y, imageURL) {
@@ -206,10 +192,13 @@ export default {
         if (numShipLives > 0) {
           myGame.time.events.add(window.Phaser.Timer.SECOND * 3, resetShip, this)
         } else {
-          // spaceship.kill()
-          // asteroidsGroup.callAll('kill')
+          spaceship.kill()
+          asteroidsGroup.callAll('kill')
           // myGame.clearCurrentState()
           myGame.time.events.add(window.Phaser.Timer.SECOND * 3, endGame, this)
+          var gameAudio = document.getElementById('game-audio')
+          gameAudio.pause()
+          gameAudio.currentTime = 0
         }
       }
       // update player's score
@@ -243,7 +232,7 @@ export default {
     function checkBoundaries (game, sprite, padding) {
       game.world.wrap(sprite, padding)
     }
-
+    // Function to create the game world
     function create () {
       // Add a space background
       myGame.add.sprite(0, 0, 'background')
@@ -255,14 +244,6 @@ export default {
       handleWeaponFire(myGame)
       initAsteroidsGroup(myGame)
       createAsteroids(myGame)
-
-      // game world has no fixed size and extends infinitely in all directions, with (0, 0) being the center
-
-      // var gameHeight = game.world.height
-
-      // spaceship physics properties
-      // body property is an instance of 'ArcadePhysics.body'
-      // spaceship.body.collideWorldBounds = true
     }
     function checkPlayerInput (game, cursors) {
       if (cursors !== null) {
@@ -288,10 +269,7 @@ export default {
     /* This function is called by the core game loop every frame */
     /* Use the Physics.collide function to test for collision between two objects/groups & perform separation against them */
     function update () {
-      //  Reset the spaceship's velocity (movement)
-      // spaceship.body.velocity.x = 0
       checkPlayerInput(myGame, cursors)
-      // asteroidsGroup.forEachExists(console.log(this.body.angularVelocity))
       checkBoundaries(myGame, spaceship, 16)
       // wrap afound the asteroids
       asteroidsGroup.forEach((item) => {
@@ -306,7 +284,7 @@ export default {
     function endGame () {
       myGame.state.start(states.main)
     }
-
+    // Used for debugging the weapon instance
     function render () {
       // weapon.debug()
     }

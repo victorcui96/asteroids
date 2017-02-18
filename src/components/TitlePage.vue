@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="title-page">
       <div class="row">
         <div class="col-sm-12">
           <h1 id="game-title"> Space <span>Shooter</span></h1>
@@ -7,11 +7,14 @@
       </div>
       <div class="row">
         <div class="col-sm-12 col-md-5">
-            <h2>TO MOVE</h2>
-            <h2>TO SHOOT</h2>
+            <h3>Press Arrow Keys to Move</h3>
+            <div>
+              <h3>Press <span>Spacebar</span> to Shoot </h3>
+            </div>
         </div>
         <div class="col-sm-12 col-md-7">
-          <PlayButton> </PlayButton>
+          <PlayButton> Start with Audio</PlayButton>
+          <PlayButton> Start without Audio</PlayButton>
         </div>
       </div>
     </div>
@@ -36,18 +39,39 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='scss'>
 /*-webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
-*//*background-color: #352C2B;*/
+-moz-osx-font-smoothing: grayscale; */
+
+
+
+* {
+  font-family: "videoGame", Times, serif;
+}
+
+.title-page {
+  background-image: url('../../static/starfield.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+}
 #game-title {
   text-align: center;
   span {
-    color: red;    
+    color: #f7401c;
   }
 }
 
-h1, h2 {
+h1, h2, h3, h4, h5, h6 {
   color: white;
   font-weight: normal;
+}
+
+.col-md-5 {
+  h3 {
+    padding: 0 15px;
+  }
+}
+
+.play-button {
+  margin-top: 25px;
 }
 
 ul {

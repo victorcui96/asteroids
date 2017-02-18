@@ -2,19 +2,22 @@
 	<div id="game-container">
 		<LivesCounter></LivesCounter>
 		<Score></Score>
+		<Level></Level>
 	</div>
 </template>
 
 <script>
 import LivesCounter from './LivesCounter'
 import Score from './Score'
+import Level from './Level'
 
 export default {
 
   name: 'Game',
   components: {
     LivesCounter,
-    Score
+    Score,
+    Level
   },
 
   mounted () {
@@ -30,10 +33,37 @@ export default {
     var weapon
     var fireButton
     var cursors
-    var enemiesGroup
+    var asteroidsGroup
+
+    var states = {
+      game: 'game',
+      main: 'main'
+    }
+
+    // var mainState = function (game) {
+    //   console.log('dead')
+    //   create () {
+    //     console.log('restart the game')
+    //   },
+    //   startGame () {
+    //     game.state.start(states.game)
+    //   }
+    // }
+
     var myGame = new window.Phaser.Game(800, 600, window.Phaser.AUTO, 'game-container', {
       preload: preload, create: create, update: update, render: render
     })
+    // Use Phaser's built in State Manager
+    // states.main is used for when the player loses all his lives
+
+    // myGame.state.add(states.main, mainState)
+    // myGame.state.add(states.game, gameState)
+    // Start the game in the main state
+    myGame.state.start(states.main)
+
+    var gameProperties = {
+      delayToStartLevel: 3
+    }
 
     var gameState = {
       level: 1,
@@ -47,9 +77,9 @@ export default {
       startY: myGame.height * 0.5
     }
 
-    var enemyProperties = {
-      startingHeads: 4,
-      // max number of heads that appear no matter what level
+    var asteroidProperties = {
+      startingAsteroids: 8,
+      // max number of asteroids that appear no matter what level
       maxHeads: 10,
       // after each rounc, increase # of heads by 2
       incrementHeads: 2,
@@ -61,14 +91,14 @@ export default {
         score: 50
       }
     }
-    var numEnemies = enemyProperties.startingHeads
+    var numAsteroids = asteroidProperties.startingAsteroids
 
     // var shipLives = shipProperties.startingLives
 
     // preload (), create(), and update() are essential Phaser functions
 
     function preload () {
-      // game.load.image('sky', '../../static/sky.png')
+      myGame.load.image('background', '../../static/background.png')
       myGame.load.image('bullet', '../../static/bullet.png')
       myGame.load.image('spaceship', '../../static/spaceship.png')
       myGame.load.image('asteroid', '../../static/asteroid2.png')
@@ -110,32 +140,32 @@ export default {
       fireButton = game.input.keyboard.addKey(window.Phaser.KeyCode.SPACEBAR)
     }
 
-    function initEnemies (game) {
+    function initAsteroidsGroup (game) {
       // groups allow me to group together similar objects & control them as one single unit
       // you can also check for collision between two different Groups
-      enemiesGroup = game.add.group()
+      asteroidsGroup = game.add.group()
       // Enables the physics body
-      enemiesGroup.enableBody = true
-      enemiesGroup.physicsBodyType = window.Phaser.Physics.ARCADE
-      // game.physics.arcade.enable(enemiesGroup)
+      asteroidsGroup.enableBody = true
+      asteroidsGroup.physicsBodyType = window.Phaser.Physics.ARCADE
+      // game.physics.arcade.enable(asteroidsGroup)
     }
 
-    function initEnemy (game, x, y, imageURL) {
-      // adds the enemy to the enemiesGroup group
-      var enemy = enemiesGroup.create(x, y, 'asteroid')
+    function initAsteroid (game, x, y, imageURL) {
+      // adds the asteroid to the asteroidsGroup group
+      var asteroid = asteroidsGroup.create(x, y, 'asteroid')
       // sets anchor point to the center of the sprite
-      enemy.anchor.set(0.5, 0.5)
-      // sets enemy body to rotate at a random angular velocity b/t min & max angular velocity
-      enemy.body.angularVelocity = game.rnd.integerInRange(enemyProperties.physicsProperties.minAngularVelocity, enemyProperties.physicsProperties.maxAngularVelocity)
+      asteroid.anchor.set(0.5, 0.5)
+      // sets asteroid body to rotate at a random angular velocity b/t min & max angular velocity
+      asteroid.body.angularVelocity = game.rnd.integerInRange(asteroidProperties.physicsProperties.minAngularVelocity, asteroidProperties.physicsProperties.maxAngularVelocity)
       // returns a value between -180 to 180 (in degrees), then converted into Radians
       var randomAngle = game.math.degToRad(game.rnd.angle())
-      var randomVelocity = game.rnd.integerInRange(enemyProperties.physicsProperties.minVelocity, enemyProperties.physicsProperties.maxVelocity)
-      game.physics.arcade.velocityFromRotation(randomAngle, randomVelocity, enemy.body.velocity)
+      var randomVelocity = game.rnd.integerInRange(asteroidProperties.physicsProperties.minVelocity, asteroidProperties.physicsProperties.maxVelocity)
+      game.physics.arcade.velocityFromRotation(randomAngle, randomVelocity, asteroid.body.velocity)
     }
 
-    function createEnemies (game) {
-      // Creates a number of enemiesGroup & randomly positions them on the screen
-      for (var i = 0; i < numEnemies; i++) {
+    function createAsteroids (game) {
+      // Creates a number of asteroidsGroup & randomly positions them on the screen
+      for (var i = 0; i < numAsteroids; i++) {
         // determines which side of the screen (vertical or horizontal)
         var screenSide = Math.round(Math.random())
         var x, y
@@ -148,11 +178,15 @@ export default {
           x = Math.random() * game.width
           y = Math.round(Math.random()) * game.height
         }
-        initEnemy(game, x, y)
+        initAsteroid(game, x, y)
       }
     }
-
+    // Check for a collision with either a bullet and as asteroid or the spaceship and the asteroid
     function asteroidCollision (target, asteroid) {
+      // check if the player has 0 lives
+      // $this.$evt.$on('playerDead', () => {
+
+      // })
       target.kill()
       asteroid.kill()
       if (target.key === 'spaceship') {
@@ -161,11 +195,22 @@ export default {
         var numShipLives = shipProperties.startingLives
         if (numShipLives > 0) {
           myGame.time.events.add(window.Phaser.Timer.SECOND * 3, resetShip, this)
+        } else {
+          // spaceship.kill()
+          // asteroidsGroup.callAll('kill')
+          // myGame.clearCurrentState()
+          myGame.time.events.add(window.Phaser.Timer.SECOND * 3, endGame, this)
         }
       }
       // update player's score
       $this.updateScore()
       gameState.score += 50
+
+      // check if there are any asteroids left. If not, go to the next level
+      if (!asteroidsGroup.countLiving()) {
+        // add a timer event that calls the goToNextLevel() function after a delay of 3 seconds
+        myGame.time.events.add(window.Phaser.Timer.SECOND * gameProperties.delayToStartLevel, goToNextLevel, this)
+      }
     }
 
     function resetShip () {
@@ -175,20 +220,31 @@ export default {
       spaceship.angle = -90
     }
 
+    function goToNextLevel (game) {
+      // Although none of the asteroids are visible, still remove them from memory for efficiency
+      asteroidsGroup.removeAll(true)
+      numAsteroids += 4
+      createAsteroids(myGame)
+      // updat the <Level> component
+      $this.updateLevel()
+    }
+
     // Make sure our game objects wrap around the game world
     function checkBoundaries (game, sprite, padding) {
       game.world.wrap(sprite, padding)
     }
 
     function create () {
+      // Add a space background
+      myGame.add.sprite(0, 0, 'background')
       // enable the Arcade Physics system
       myGame.physics.startSystem(window.Phaser.Physics.ARCADE)
 
       initSpaceship(myGame)
       initWeapon(myGame)
       handleWeaponFire(myGame)
-      initEnemies(myGame)
-      createEnemies(myGame)
+      initAsteroidsGroup(myGame)
+      createAsteroids(myGame)
 
       // game world has no fixed size and extends infinitely in all directions, with (0, 0) being the center
 
@@ -225,21 +281,30 @@ export default {
       //  Reset the spaceship's velocity (movement)
       // spaceship.body.velocity.x = 0
       checkPlayerInput(myGame, cursors)
-      // enemiesGroup.forEachExists(console.log(this.body.angularVelocity))
+      // asteroidsGroup.forEachExists(console.log(this.body.angularVelocity))
       checkBoundaries(myGame, spaceship, 16)
       // wrap afound the asteroids
-      enemiesGroup.forEach((item) => {
+      asteroidsGroup.forEach((item) => {
         myGame.world.wrap(item, 16)
       }, this)
       // Collision detection between the bullet and an asteroid ->if there is a collision, destroy both the bullet and the asteroid
-      myGame.physics.arcade.overlap(weapon.bullets, enemiesGroup, asteroidCollision, null, this)
+      myGame.physics.arcade.overlap(weapon.bullets, asteroidsGroup, asteroidCollision, null, this)
       // Collision detection between the spaceship and an asteroid
-      myGame.physics.arcade.overlap(spaceship, enemiesGroup, asteroidCollision, null, this)
+      myGame.physics.arcade.overlap(spaceship, asteroidsGroup, asteroidCollision, null, this)
+    }
+
+    function endGame () {
+      myGame.state.start(states.main)
     }
 
     function render () {
       // weapon.debug()
     }
+  },
+
+  beforeDestroy () {
+    // unregister custom event listeners
+    this.$evt.$off('playerDead', this.clear)
   },
 
   methods: {
@@ -250,6 +315,10 @@ export default {
     updateScore () {
       // emit an event to be captured by <Score> component. This should increase the player's score by 50
       this.$evt.$emit('updateScore')
+    },
+    updateLevel () {
+      // emit an event to be captured by <Level> component. This should go to level 2
+      this.$evt.$emit('updateLevel')
     }
   },
 

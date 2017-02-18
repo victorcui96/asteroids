@@ -12,6 +12,9 @@ export default {
   mounted () {
     this.$evt.$on('decrementShipLife', () => {
       this.numLives--
+      if (this.numLives === 0) {
+        this.$evt.$emit('playerDead')
+      }
     })
   },
 

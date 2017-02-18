@@ -1,6 +1,8 @@
 <template>
 	<div>
-		<button class="play-button" @click="playGame">Start With Audio</button>
+		<button class="play-button" @click="playGame">
+      <slot> </slot>
+    </button>
 	</div>
 </template>
 
@@ -26,16 +28,23 @@ export default {
 
 <style lang='scss' scoped>
   .play-button {
-  	background: lightgreen;
+  	background: #35777d;
   	border: 1px solid darkslategrey;
   	border-radius: 2px;
   	color: white;
-  	display: flex;
-	float: right;
-  	height: 50px;
-  	/*text-align: center;*/
-  	font-size: 150%;
-  	/*width: 100px;*/
+  	/*display: flex;*/
+	  float: right;
+  	height: 60px;
+  	text-align: center;
+  	font-size: 120%;
+  	padding: 0 15px;
+    width: 350px;
+    transition: 0.4s ease-out;
+    &:hover {
+      background: rgba(#35777d, 0);
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
   	
 
   }

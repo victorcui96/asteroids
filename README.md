@@ -1,8 +1,10 @@
-# mejo583-project1
+# asteroids-vue
 
-> An intuitive and fun web application crated using Vue.js
+> An intuitive and fun take on the classic Arcade game Atari Asteroids
+> Uses the front-end framework Vue.js and the game framework Phaser.io
+> 
 
-## Build Setup
+## Build Setup (i.e installation instructions)
 
 ``` bash
 # install dependencies
@@ -10,6 +12,8 @@ npm install
 
 # serve with hot reload at localhost:8080
 npm run dev
+
+Everything below this line is related to uploading the repository to a server
 
 # build for production with minification
 npm run build

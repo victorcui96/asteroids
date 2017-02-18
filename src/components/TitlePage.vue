@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="col-sm-12 col-md-7">
-          <PlayButton> Start with Audio</PlayButton>
+          <PlayButton class="audio-btn"> Start with Audio</PlayButton>
           <PlayButton> Start without Audio</PlayButton>
         </div>
       </div>
@@ -42,15 +42,11 @@ export default {
 -moz-osx-font-smoothing: grayscale; */
 
 
-
-* {
-  font-family: "videoGame", Times, serif;
-}
-
 .title-page {
   background-image: url('../../static/starfield.png');
   background-repeat: no-repeat;
   background-position: center center;
+  font-family: "videoGame", Times, serif;
 }
 #game-title {
   text-align: center;

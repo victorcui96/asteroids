@@ -20,6 +20,13 @@ export default {
     playGame () {
       // This is when the <App> grandparent should be notified to play the <Game>
       this.$evt.$emit('playGame')
+      console.log(this.$el.className)
+      if (this.$el.className === 'audio-btn') {
+        console.log('button clicked')
+        // this.$evt.$emit('playGameSound')
+        // var gameAudio = document.getElementById('game-audio')
+        // gameAudio.play()
+      }
     }
   }
 }

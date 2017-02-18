@@ -3,6 +3,9 @@
 		<LivesCounter></LivesCounter>
 		<Score></Score>
 		<Level></Level>
+		<audio loop id="game-audio">
+			<source src="../../static/in-game-sound.wav">
+		</audio>
 	</div>
 </template>
 
@@ -24,17 +27,17 @@ export default {
     var $this = this
     // create phaser game here
     console.log('Game ->mounted')
-    // Create an instace of a Phaser.Game object
+    // Create an instance of a Phaser.Game object
     // First two parameters are the width & height of the <canvas> element that Phaser creates
     // Third parameter = rendering context, either WEBGL or Canvas
-    // var winW = document.body.offsetWidth
-    // var winH = document.body.offsetHeight
     var spaceship
     var weapon
     var fireButton
     var cursors
     var asteroidsGroup
-
+    var gameAudio = document.getElementById('game-audio')
+    // TODO: Figure out how to only play sound when user clicks audio button
+    gameAudio.play()
     var states = {
       game: 'game',
       main: 'main'
@@ -59,7 +62,7 @@ export default {
     // myGame.state.add(states.main, mainState)
     // myGame.state.add(states.game, gameState)
     // Start the game in the main state
-    myGame.state.start(states.main)
+    // myGame.state.start(states.main)
 
     var gameProperties = {
       delayToStartLevel: 3
@@ -93,6 +96,12 @@ export default {
     }
     var numAsteroids = asteroidProperties.startingAsteroids
 
+    // Check if user wants sound during the game
+    this.$evt.$on('playGameSound', () => {
+      console.log('Play sound')
+      gameAudio.play()
+    })
+
     // var shipLives = shipProperties.startingLives
 
     // preload (), create(), and update() are essential Phaser functions
@@ -115,6 +124,7 @@ export default {
       // Set a max velocity for the spaceship
       spaceship.body.drag.set(70)
       spaceship.body.maxVelocity.set(200)
+      spaceship.angle = -90
     }
 
     function initWeapon (game) {
@@ -305,8 +315,11 @@ export default {
   beforeDestroy () {
     // unregister custom event listeners
     this.$evt.$off('playerDead', this.clear)
+    this.$evt.$off('playGameSound', this.clear)
+    var gameAudio = document.getElementById('game-audio')
+    gameAudio.pause()
+    gameAudio.currentTime = 0
   },
-
   methods: {
     destroyShip () {
       // emit an event to be captured by <LivesCounter> component. This should decrease the number of ship lives by 1
@@ -334,6 +347,7 @@ export default {
 <style lang="scss" scoped>
 #game-container {
 	background: gray;
+	font-family: 'videoGame';
 	max-width: 800px;
 	max-height: 600px;
 	position: relative;

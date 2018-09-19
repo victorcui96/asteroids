@@ -31,6 +31,4 @@ I got the inspiration for this project from Haseeb Qureshi's implementation of A
 
 For some of the code inside Game.Vue, I followed an Asteroids tutorial using Phaser.io. You can find the tutorial I used here: http://www.zekechan.net/asteroids-html5-game-tutorial-1/
 
-This github repository is located at: https://github.com/victorcui96/asteroids
-
 

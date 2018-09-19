@@ -9,7 +9,6 @@ import '../static/video-game-font/variables.scss'
 
 const evt = new Vue()
 Vue.prototype.$evt = evt
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
